@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import Home from './home';
 import Contact from './contact';
-import LeaveNote from './LeaveNote';
+import LeaveNote from './leavenote';
 
 function App() {
   return (
