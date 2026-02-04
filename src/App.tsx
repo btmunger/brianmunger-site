@@ -1,37 +1,34 @@
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import './App.css';
+import Home from './home';
+import Contact from './contact';
+import LeaveNote from './LeaveNote';
 
 function App() {
-
   return (
-    <>
+    <Router>
       {/* Navigation Bar */}
       <nav className="navbar">
         <ul className="nav-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#contact">Contact</a></li>
-           <li><a href="#leavenote">Leave A Note!</a></li>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/contact">Contact</Link></li>
+          <li><Link to="/leavenote">Leave a Note</Link></li>
         </ul>
       </nav>
 
-      {/* Main Content */}
-      <header id="home" className="hero">
-        <div className="profile-section">
-          <img 
-            src="/btm.jpg" 
-            alt="Brian Munger" 
-            className="profile-image"
-          />
-          <h1>Brian Munger</h1>
-          <p className="tagline">Welcome to my website!</p>
-        </div>
-      </header>
+      {/* Routes */}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/leavenote" element={<LeaveNote />} />
+      </Routes>
 
       {/* Footer */}
       <footer className="footer">
         <p>Made by Brian Munger, 2026</p>
       </footer>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
