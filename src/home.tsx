@@ -10,6 +10,7 @@ function App() {
           <li><a href="/">Home</a></li>
           <li><a href="/contact">Contact</a></li>
            <li><a href="/leavenote">Leave A Note!</a></li>
+           <li><a href="/lainey">Hi Lainey!</a></li>
         </ul>
       </nav>
 

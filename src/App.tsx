@@ -3,6 +3,7 @@ import './App.css';
 import Home from './home';
 import Contact from './contact';
 import LeaveNote from './leavenote';
+import Lainey from './lainey';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <li><Link to="/">Home</Link></li>
           <li><Link to="/contact">Contact</Link></li>
           <li><Link to="/leavenote">Leave a Note</Link></li>
+          <li><Link to="/lainey">Hi Lainey!</Link></li>
         </ul>
       </nav>
 
@@ -21,6 +23,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/leavenote" element={<LeaveNote />} />
+        <Route path="/lainey" element={<Lainey />} />
       </Routes>
 
       {/* Footer */}
