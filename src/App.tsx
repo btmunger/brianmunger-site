@@ -175,8 +175,8 @@ function App() {
   const juneProgress = useMemo(() => getTimelineProgressJune(), []);
   const julyProgress = useMemo(() => getTimelineProgressJuly(), []);
   const timelines = useMemo<Timeline[]>(() => [
-    { endLabel: 'Jun 4', label: 'May->June Timeline', value: juneProgress },
-    { endLabel: 'July 6', label: 'May->July Timeline', value: julyProgress },
+    { endLabel: 'Jun', label: 'May->June Timeline', value: juneProgress },
+    { endLabel: 'July', label: 'May->July Timeline', value: julyProgress },
   ], [juneProgress, julyProgress]);
   const [riverConditions, setRiverConditions] = useState<Record<string, RiverCondition>>(
     initialRiverConditions
@@ -308,7 +308,7 @@ function App() {
                   <strong>{timeline.value}%</strong>
                 </div>
                 <div className="timeline-dates">
-                  <span>Apr 26</span>
+                  <span>Apr</span>
                   <span>{timeline.endLabel}</span>
                 </div>
                 <div className="progress-track" aria-hidden="true">
