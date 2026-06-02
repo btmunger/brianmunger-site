@@ -91,6 +91,7 @@ h3 {
 
 .dashboard-grid {
   display: grid;
+  align-items: start;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
   gap: 22px;
   max-width: 1120px;
@@ -264,8 +265,7 @@ h3 {
   background: #ffffff;
 }
 
-.river-metrics span,
-.flies-note span {
+.river-metrics span {
   color: #627378;
   font-size: 0.72rem;
   font-weight: 800;
@@ -275,31 +275,6 @@ h3 {
 .river-metrics strong {
   color: #12343d;
   font-size: 0.94rem;
-}
-
-.flies-note {
-  display: grid;
-  gap: 5px;
-  border-top: 1px solid #dce7e1;
-  padding-top: 12px;
-}
-
-.suggest-button {
-  width: fit-content;
-  border: 0;
-  border-radius: 8px;
-  padding: 10px 14px;
-  background: #12343d;
-  color: #ffffff;
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.suggest-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.62;
 }
 
 .ai-suggestions {

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
 type Timeline = {
+  endLabel: string;
   label: string;
   value: number;
 };
@@ -24,7 +25,6 @@ type RiverLocation = {
   latitude: number;
   longitude: number;
   site: string;
-  flies: string;
 };
 
 type RiverGauge = {
@@ -96,7 +96,6 @@ const riverLocations: RiverLocation[] = [
     latitude: 44.5518,
     longitude: -123.2519,
     site: '14171600',
-    flies: 'Caddis pupa, soft hackles, small streamers',
   },
   {
     id: 'mckenzie-hayden',
@@ -105,23 +104,21 @@ const riverLocations: RiverLocation[] = [
     latitude: 44.0712365,
     longitude: -122.9645273,
     site: '14164900',
-    flies: 'Possie Bugger, Elk Hair Caddis, PMD emerger',
   },
   {
     id: 'mckenzie-leaburg',
     name: 'McKenzie near Leaburg',
-    gaugeName: 'McKenzie River at Leaburg Dam',
-    latitude: 44.1375,
-    longitude: -122.6111,
-    site: '14163100',
-    flies: 'March Brown, golden stone nymph, Parachute Adams',
+    gaugeName: 'McKenzie River below Leaburg Dam',
+    latitude: 44.1239,
+    longitude: -122.6264,
+    site: '14163150',
   },
 ];
 
 const initialRiverConditions = riverLocations.reduce<Record<string, RiverCondition>>(
   (conditions, location) => ({
     ...conditions,
-    [location.id]: { loading: true },
+    [location.id]: { loading: true, suggestionLoading: true },
   }),
   {}
 );
@@ -178,62 +175,12 @@ function App() {
   const juneProgress = useMemo(() => getTimelineProgressJune(), []);
   const julyProgress = useMemo(() => getTimelineProgressJuly(), []);
   const timelines = useMemo<Timeline[]>(() => [
-    { label: 'May->June Timeline', value: juneProgress },
-    { label: 'May->July Timeline', value: julyProgress },
+    { endLabel: 'Jun 4', label: 'May->June Timeline', value: juneProgress },
+    { endLabel: 'July 6', label: 'May->July Timeline', value: julyProgress },
   ], [juneProgress, julyProgress]);
   const [riverConditions, setRiverConditions] = useState<Record<string, RiverCondition>>(
     initialRiverConditions
   );
-
-  const suggestFlies = async (location: RiverLocation) => {
-    const condition = riverConditions[location.id];
-
-    setRiverConditions((current) => ({
-      ...current,
-      [location.id]: {
-        ...current[location.id],
-        suggestionError: '',
-        suggestionLoading: true,
-      },
-    }));
-
-    try {
-      const response = await fetch('/api/suggest-flies', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          gauge: condition?.gauge,
-          river: location.name,
-          weather: condition?.weather,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error ?? 'Suggestion request failed');
-      }
-
-      setRiverConditions((current) => ({
-        ...current,
-        [location.id]: {
-          ...current[location.id],
-          suggestionError: '',
-          suggestionLoading: false,
-          suggestions: data.suggestions,
-        },
-      }));
-    } catch {
-      setRiverConditions((current) => ({
-        ...current,
-        [location.id]: {
-          ...current[location.id],
-          suggestionError: 'Suggestions unavailable',
-          suggestionLoading: false,
-        },
-      }));
-    }
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -252,22 +199,53 @@ function App() {
 
           const weatherData = await weatherResponse.json();
           const gaugeData = await gaugeResponse.json();
+          const gauge = parseGauge(gaugeData);
+          const weather = {
+            apparentTemperature: weatherData.current.apparent_temperature,
+            humidity: weatherData.current.relative_humidity_2m,
+            precipitation: weatherData.current.precipitation,
+            temperature: weatherData.current.temperature_2m,
+            time: weatherData.current.time,
+            weatherCode: weatherData.current.weather_code,
+            windGust: weatherData.current.wind_gusts_10m,
+            windSpeed: weatherData.current.wind_speed_10m,
+          };
+
+          let suggestions = '';
+          let suggestionError = '';
+
+          try {
+            const suggestionResponse = await fetch('/api/suggest-flies', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                gauge,
+                river: location.name,
+                weather,
+              }),
+            });
+
+            const suggestionData: { error?: string; suggestions?: string } =
+              await suggestionResponse.json();
+
+            if (!suggestionResponse.ok) {
+              throw new Error(suggestionData.error ?? 'Suggestion request failed');
+            }
+
+            suggestions = suggestionData.suggestions ?? '';
+          } catch {
+            suggestionError = 'Suggestions unavailable';
+          }
 
           return {
             id: location.id,
             condition: {
-              gauge: parseGauge(gaugeData),
+              gauge,
               loading: false,
-              weather: {
-                apparentTemperature: weatherData.current.apparent_temperature,
-                humidity: weatherData.current.relative_humidity_2m,
-                precipitation: weatherData.current.precipitation,
-                temperature: weatherData.current.temperature_2m,
-                time: weatherData.current.time,
-                weatherCode: weatherData.current.weather_code,
-                windGust: weatherData.current.wind_gusts_10m,
-                windSpeed: weatherData.current.wind_speed_10m,
-              },
+              suggestionError,
+              suggestionLoading: false,
+              suggestions,
+              weather,
             } satisfies RiverCondition,
           };
         } catch {
@@ -275,6 +253,7 @@ function App() {
             id: location.id,
             condition: {
               loading: false,
+              suggestionLoading: false,
               error: 'Conditions unavailable',
             } satisfies RiverCondition,
           };
@@ -329,7 +308,7 @@ function App() {
                 </div>
                 <div className="timeline-dates">
                   <span>Apr 26</span>
-                  <span>Jun 4</span>
+                  <span>{timeline.endLabel}</span>
                 </div>
                 <div className="progress-track" aria-hidden="true">
                   <span style={{ width: `${timeline.value}%` }} />
@@ -396,19 +375,9 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="flies-note">
-                    <span>Suggested Flies</span>
-                    <strong>{location.flies}</strong>
-                  </div>
-
-                  <button
-                    className="suggest-button"
-                    disabled={condition?.loading || condition?.suggestionLoading}
-                    type="button"
-                    onClick={() => suggestFlies(location)}
-                  >
-                    {condition?.suggestionLoading ? 'Thinking...' : 'Suggest Flies'}
-                  </button>
+                  {condition?.suggestionLoading && (
+                    <p className="weather-message">Loading ChatGPT suggestions...</p>
+                  )}
 
                   {condition?.suggestionError && (
                     <p className="weather-message">{condition.suggestionError}</p>
