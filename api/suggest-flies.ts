@@ -20,6 +20,31 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const getOpenAIStatus = (error: unknown) => {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    typeof error.status === 'number'
+  ) {
+    return error.status;
+  }
+
+  return 500;
+};
+
+const getOpenAIMessage = (status: number) => {
+  if (status === 401) {
+    return 'OpenAI API key was rejected';
+  }
+
+  if (status === 429) {
+    return 'OpenAI rate limit or billing issue';
+  }
+
+  return 'Fly suggestions unavailable';
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -37,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const response = await client.responses.create({
-      model: 'gpt-5.2',
+      model: 'gpt-5-mini',
       input: [
         {
           role: 'system',
@@ -56,7 +81,11 @@ Suggest 3 to 5 flies. For each fly, include a short reason. End with one short n
     });
 
     return res.status(200).json({ suggestions: response.output_text });
-  } catch {
-    return res.status(500).json({ error: 'Fly suggestions unavailable' });
+  } catch (error) {
+    const status = getOpenAIStatus(error);
+
+    console.error('Fly suggestion request failed', error);
+
+    return res.status(status).json({ error: getOpenAIMessage(status) });
   }
 }

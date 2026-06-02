@@ -229,12 +229,13 @@ function App() {
               await suggestionResponse.json();
 
             if (!suggestionResponse.ok) {
-              throw new Error(suggestionData.error ?? 'Suggestion request failed');
+              suggestionError = suggestionData.error ?? 'Suggestions unavailable';
+              throw new Error(suggestionError);
             }
 
             suggestions = suggestionData.suggestions ?? '';
           } catch {
-            suggestionError = 'Suggestions unavailable';
+            suggestionError ||= 'Suggestions unavailable';
           }
 
           return {
@@ -376,7 +377,7 @@ function App() {
                   </div>
 
                   {condition?.suggestionLoading && (
-                    <p className="weather-message">Loading ChatGPT suggestions...</p>
+                    <p className="weather-message">Loading fly suggestions...</p>
                   )}
 
                   {condition?.suggestionError && (
