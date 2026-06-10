@@ -47,25 +47,25 @@ export default function Countdown() {
     return () => clearInterval(interval);
   }, []);
 
-  return (
+    return (
     <main className="dashboard-shell">
       <h1>Release Date</h1>
       <h2>July 6, 2026</h2>
-
-      <div style={{ marginTop: "2rem" }}>
-        <h3>Time Remaining</h3>
-        <div style={{ fontSize: "3rem" }}>{timeLeft}</div>
-      </div>
 
       <div style={{ marginTop: "2rem" }}>
         <h3>Time Passed</h3>
         <div style={{ fontSize: "3rem" }}>{timePassed}</div>
       </div>
 
+      <div style={{ marginTop: "2rem" }}>
+        <h3>Time Remaining</h3>
+        <div style={{ fontSize: "3rem" }}>{timeLeft}</div>
+      </div>
+
       <h3>Timeline</h3>
       <ul>
         <li>April 26, 2026 - Timeline Begins</li>
-        <li>July 6, 2026 - Done Date</li>
+        <li>July 6, 2026 - Release Date</li>
       </ul>
     </main>
   );
